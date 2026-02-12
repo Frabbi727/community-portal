@@ -3,8 +3,11 @@
 namespace Database\Seeders;
 
 use App\Models\Campaign;
+use App\Models\CommunityPost;
 use App\Models\Member;
+use App\Models\MembershipApplication;
 use App\Models\Notice;
+use App\Models\OccasionBanner;
 use App\Models\User;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
@@ -16,10 +19,26 @@ class DatabaseSeeder extends Seeder
 
     public function run(): void
     {
+        $admin = User::factory()->create([
+            'name' => 'Portal Admin',
+            'email' => 'admin@example.com',
+            'password' => 'password',
+            'is_admin' => true,
+            'membership_status' => 'approved',
+        ]);
+
         $memberUser = User::factory()->create([
             'name' => 'Portal Member',
             'email' => 'member@example.com',
             'password' => 'password',
+            'membership_status' => 'approved',
+        ]);
+
+        $pendingUser = User::factory()->create([
+            'name' => 'Pending Applicant',
+            'email' => 'pending@example.com',
+            'password' => 'password',
+            'membership_status' => 'pending',
         ]);
 
         Member::query()->create([
@@ -57,6 +76,19 @@ class DatabaseSeeder extends Seeder
             ]);
         }
 
+        MembershipApplication::query()->create([
+            'user_id' => $pendingUser->id,
+            'full_name' => $pendingUser->name,
+            'email' => $pendingUser->email,
+            'phone' => '+1 555-0111',
+            'address' => 'West Side',
+            'occupation' => 'Engineer',
+            'interests' => 'Volunteer operations',
+            'motivation' => 'I want to help organize programs.',
+            'status' => 'pending',
+            'submitted_at' => now()->subDays(2),
+        ]);
+
         $noticeItems = [
             [
                 'title' => 'Monthly Community Meeting',
@@ -75,7 +107,7 @@ class DatabaseSeeder extends Seeder
             [
                 'title' => 'Member Budget Review Session',
                 'type' => 'event',
-                'summary' => 'Quarterly finance discussion for registered members only.',
+                'summary' => 'Quarterly finance discussion for approved members only.',
                 'body' => 'Detailed budget and next quarter plans will be presented in this session.',
                 'is_public' => false,
             ],
@@ -85,7 +117,7 @@ class DatabaseSeeder extends Seeder
             Notice::query()->create([
                 ...$notice,
                 'slug' => Str::slug($notice['title']),
-                'created_by' => $memberUser->id,
+                'created_by' => $admin->id,
                 'published_at' => now()->subDays(rand(1, 15)),
             ]);
         }
@@ -107,7 +139,7 @@ class DatabaseSeeder extends Seeder
         Campaign::query()->create([
             'title' => 'Member Skill Workshop',
             'slug' => 'member-skill-workshop',
-            'summary' => 'Private training sessions for registered members.',
+            'summary' => 'Private training sessions for approved members.',
             'description' => 'Weekly workshops on leadership, budgeting, and digital tools.',
             'status' => 'planned',
             'start_date' => now()->addDays(10),
@@ -116,6 +148,30 @@ class DatabaseSeeder extends Seeder
             'current_amount' => 300,
             'is_public' => false,
             'contact_email' => 'members@example.com',
+        ]);
+
+        CommunityPost::query()->create([
+            'user_id' => $memberUser->id,
+            'title' => 'Cleanup Drive Highlights',
+            'body' => 'Thanks everyone for joining the weekend cleanup drive.',
+            'is_public' => true,
+        ]);
+
+        CommunityPost::query()->create([
+            'user_id' => $admin->id,
+            'title' => 'Next Month Volunteer Plan',
+            'body' => 'Member-only planning brief has been uploaded in dashboard updates.',
+            'is_public' => false,
+        ]);
+
+        OccasionBanner::query()->create([
+            'user_id' => $admin->id,
+            'title' => 'Community Celebration Week',
+            'type' => 'celebration',
+            'message' => 'Join us for our annual cultural celebration week.',
+            'starts_on' => now()->subDay(),
+            'ends_on' => now()->addDays(7),
+            'is_active' => true,
         ]);
     }
 }

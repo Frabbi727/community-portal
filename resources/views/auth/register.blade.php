@@ -3,8 +3,8 @@
 @section('content')
 <section class="auth-shell">
     <article class="card form-card auth-card">
-        <h1>Create Member Account</h1>
-        <p>Register to access member-only notices and campaign details.</p>
+        <h1>Create Account</h1>
+        <p>Step 1 of 3: register account first, then submit membership application.</p>
 
         <form method="POST" action="{{ route('register.perform') }}" class="form-grid">
             @csrf

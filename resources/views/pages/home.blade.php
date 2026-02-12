@@ -2,13 +2,29 @@
 
 @section('content')
 <section class="hero">
-    <p class="eyebrow">Community Hub</p>
-    <h1>Stay up to date with members, notices, celebrations, and campaigns.</h1>
-    <p class="lead">A single portal where everyone can see what is happening and members can access private updates.</p>
-    <div class="hero-actions">
-        <a href="{{ route('membership.create') }}" class="btn btn-primary">Apply for Membership</a>
-        <a href="{{ route('notices.index') }}" class="btn btn-subtle">View Updates</a>
+    <div>
+        <p class="eyebrow">Community Hub</p>
+        <h1>Stay up to date with members, notices, celebrations, and campaigns.</h1>
+        <p class="lead">A single portal where everyone can see what is happening and approved members can access private updates.</p>
+        <div class="hero-actions">
+            @auth
+                <a href="{{ route('membership.create') }}" class="btn btn-primary">Apply for Membership</a>
+            @else
+                <a href="{{ route('register') }}" class="btn btn-primary">Register First</a>
+            @endauth
+            <a href="{{ route('notices.index') }}" class="btn btn-subtle">View Updates</a>
+        </div>
     </div>
+
+    <aside class="hero-panel">
+        <h3>Membership Flow</h3>
+        <ol>
+            <li>Register account</li>
+            <li>Submit membership application</li>
+            <li>Admin review and approval</li>
+            <li>Get access to member area</li>
+        </ol>
+    </aside>
 </section>
 
 <section class="stats-grid">

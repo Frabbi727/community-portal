@@ -9,16 +9,29 @@ use Illuminate\View\View;
 
 class MembershipApplicationController extends Controller
 {
-    public function create(): View
+    public function create(Request $request): View
     {
-        return view('pages.membership-form');
+        $latestApplication = $request->user()->membershipApplications()->latest('submitted_at')->first();
+
+        return view('pages.membership-form', [
+            'latestApplication' => $latestApplication,
+        ]);
     }
 
     public function store(Request $request): RedirectResponse
     {
+        $user = $request->user();
+        $latestApplication = $user->membershipApplications()->latest('submitted_at')->first();
+
+        if ($user->isApprovedMember()) {
+            return redirect()->route('dashboard');
+        }
+
+        if ($latestApplication && $latestApplication->status === 'pending') {
+            return back()->withErrors(['membership' => 'You already have a pending membership application.']);
+        }
+
         $validated = $request->validate([
-            'full_name' => ['required', 'string', 'max:255'],
-            'email' => ['required', 'email', 'max:255'],
             'phone' => ['required', 'string', 'max:30'],
             'address' => ['nullable', 'string', 'max:255'],
             'occupation' => ['nullable', 'string', 'max:255'],
@@ -28,10 +41,15 @@ class MembershipApplicationController extends Controller
 
         MembershipApplication::query()->create([
             ...$validated,
+            'user_id' => $user->id,
+            'full_name' => $user->name,
+            'email' => $user->email,
             'submitted_at' => now(),
             'status' => 'pending',
         ]);
 
-        return back()->with('success', 'Your membership form has been submitted successfully.');
+        $user->update(['membership_status' => 'pending']);
+
+        return back()->with('success', 'Application submitted. Admin review is pending.');
     }
 }

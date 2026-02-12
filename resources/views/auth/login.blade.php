@@ -3,8 +3,8 @@
 @section('content')
 <section class="auth-shell">
     <article class="card form-card auth-card">
-        <h1>Member Login</h1>
-        <p>Login to access private member updates.</p>
+        <h1>Login</h1>
+        <p>Login to apply for membership or access your approved member area.</p>
 
         <form method="POST" action="{{ route('login.perform') }}" class="form-grid">
             @csrf

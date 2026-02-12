@@ -4,7 +4,7 @@
 <section class="section-header">
     <p class="eyebrow">Directory</p>
     <h1>Community Members</h1>
-    <p>Public profiles are visible to everyone. Registered members can see extra contact details.</p>
+    <p>Public profiles are visible to everyone. Approved members can see extra contact details.</p>
 </section>
 
 <section class="card-grid">
@@ -16,10 +16,10 @@
             <p><strong>Location:</strong> {{ $member->location ?: 'Not shared' }}</p>
             <p><strong>Occupation:</strong> {{ $member->occupation ?: 'Not shared' }}</p>
 
-            @auth
+            @if(auth()->check() && (auth()->user()->isApprovedMember() || auth()->user()->is_admin))
                 <p><strong>Email:</strong> {{ $member->email ?: 'Not shared' }}</p>
                 <p><strong>Phone:</strong> {{ $member->phone ?: 'Not shared' }}</p>
-            @endauth
+            @endif
         </article>
     @empty
         <article class="card">

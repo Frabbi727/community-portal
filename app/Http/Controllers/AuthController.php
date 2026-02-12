@@ -32,7 +32,17 @@ class AuthController extends Controller
 
         $request->session()->regenerate();
 
-        return redirect()->intended(route('member.dashboard'));
+        $user = $request->user();
+
+        if ($user->is_admin) {
+            return redirect()->intended(route('admin.dashboard'));
+        }
+
+        if ($user->isApprovedMember()) {
+            return redirect()->intended(route('dashboard'));
+        }
+
+        return redirect()->intended(route('membership.create'));
     }
 
     public function showRegister(): View
@@ -48,12 +58,15 @@ class AuthController extends Controller
             'password' => ['required', 'string', 'min:8', 'confirmed'],
         ]);
 
-        $user = User::query()->create($validated);
+        $user = User::query()->create([
+            ...$validated,
+            'membership_status' => 'none',
+        ]);
 
         Auth::login($user);
         $request->session()->regenerate();
 
-        return redirect()->route('member.dashboard');
+        return redirect()->route('membership.create');
     }
 
     public function logout(Request $request): RedirectResponse

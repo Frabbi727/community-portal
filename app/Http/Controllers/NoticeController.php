@@ -9,14 +9,14 @@ class NoticeController extends Controller
 {
     public function index(): View
     {
-        $query = Notice::query()->published()->latest('published_at');
-
-        if (! auth()->check()) {
-            $query->where('is_public', true);
-        }
+        $notices = Notice::query()
+            ->published()
+            ->where('is_public', true)
+            ->latest('published_at')
+            ->paginate(10);
 
         return view('pages.notices', [
-            'notices' => $query->paginate(10),
+            'notices' => $notices,
         ]);
     }
 }

@@ -9,14 +9,8 @@ class CampaignController extends Controller
 {
     public function index(): View
     {
-        $query = Campaign::query()->latest('created_at');
-
-        if (! auth()->check()) {
-            $query->where('is_public', true);
-        }
-
         return view('pages.campaigns', [
-            'campaigns' => $query->paginate(9),
+            'campaigns' => Campaign::query()->where('is_public', true)->latest('created_at')->paginate(9),
         ]);
     }
 }
